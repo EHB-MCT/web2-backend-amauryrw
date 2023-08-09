@@ -24,10 +24,10 @@ const client = new MongoClient(uri, {
 
 client.connect((err) => {
   if (err) {
-    console.error('Erreur lors de la connexion à la base de données:', err);
+    console.error('Error connecting to database:', err);
     return;
   }
-  console.log('Connecté à la base de données MongoDB');
+  console.log('Connected to MongoDB database');
 });
 
 app.post('/register', async (req, res) => {
@@ -47,7 +47,7 @@ app.post('/register', async (req, res) => {
 
     if (existingUsername) {
       return res.status(400).json({
-        message: 'Ce nom d\'utilisateur est déjà utilisé'
+        message: 'This username is already used'
       });
     }
 
@@ -60,13 +60,13 @@ app.post('/register', async (req, res) => {
 
     if (existingEmail) {
       return res.status(400).json({
-        message: 'Cette adresse e-mail est déjà utilisée'
+        message: 'This email address is already in use'
       });
     }
 
     if (!username || !email || !password) {
       return res.status(400).json({
-        message: 'Veuillez remplir tous les champs requis'
+        message: 'Please complete all required fields'
       });
     }
 
@@ -81,22 +81,19 @@ app.post('/register', async (req, res) => {
     });
 
     res.status(200).json({
-      message: 'Inscription réussie',
+      message: 'successful registration',
       userId
     });
   } catch (error) {
-    console.error('Erreur lors de l\'inscription:', error);
+    console.error('Error while registering:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de l\'inscription'
+      message: 'An error occurred while registering'
     });
   }
 });
 
 app.post('/login', async (req, res) => {
-  const {
-    email,
-    password
-  } = req.body;
+  const { email, password } = req.body;
 
   try {
     const existingUser = await client
@@ -108,24 +105,27 @@ app.post('/login', async (req, res) => {
 
     if (!existingUser) {
       return res.status(400).json({
-        message: 'Adresse e-mail ou mot de passe incorrect'
+        message: 'Incorrect email address or password'
       });
     }
 
     const passwordMatch = await bcrypt.compare(password, existingUser.password);
     if (!passwordMatch) {
       return res.status(400).json({
-        message: 'Adresse e-mail ou mot de passe incorrect'
+        message: 'Incorrect email address or password'
       });
     }
 
+    const userId = existingUser.userId; // Get the userId from the existingUser object
+
     res.status(200).json({
-      message: 'Connexion réussie'
+      message: 'Successful connection',
+      userId
     });
   } catch (error) {
-    console.error('Erreur lors de la connexion:', error);
+    console.error('Error while connecting:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la connexion'
+      message: 'An error occurred while logging in'
     });
   }
 });
@@ -154,7 +154,7 @@ app.post('/newChallenges', async (req, res) => {
 
     if (!existingUser) {
       return res.status(400).json({
-        message: 'userID invalide'
+        message: 'invalid user ID'
       });
     }
 
@@ -169,21 +169,19 @@ app.post('/newChallenges', async (req, res) => {
     });
 
     res.status(200).json({
-      message: 'Challenge créé avec succès',
+      message: 'Challenge created successfully',
       challengeId,
       userId
     });
     
     
   } catch (error) {
-    console.error('Erreur lors de la création du challenge:', error);
+    console.error('Error creating challenge:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la création du challenge'
+      message: 'An error occurred while creating the challenge'
     });
   }
 });
-
-
 
         
 app.delete('/deleteChallenge/:challengeId', async (req, res) => {
@@ -197,23 +195,21 @@ app.delete('/deleteChallenge/:challengeId', async (req, res) => {
 
     if (!deletedChallenge.value) {
       return res.status(400).json({
-        message: 'Défi introuvable ou déjà supprimé'
+        message: 'Challenge not found or already deleted'
       });
     }
 
     res.status(200).json({
-      message: 'Défi supprimé avec succès',
+      message: 'Challenge successfully deleted',
       challengeId
     });
   } catch (error) {
-    console.error('Erreur lors de la suppression du défi:', error);
+    console.error('Error deleting challenge:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la suppression du défi'
+      message: 'An error occurred while deleting the challenge'
     });
   }
 });
-
-
 
 
 app.get('/my-challenges', async (req, res) => {
@@ -228,12 +224,68 @@ app.get('/my-challenges', async (req, res) => {
 
     res.status(200).json({ challenges });
   } catch (error) {
-    console.error('Erreur lors de la récupération des challenges de l\'utilisateur:', error);
+    console.error('Error retrieving user challenges:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la récupération des challenges de l\'utilisateur'
+      message: 'An error occurred while retrieving user challenges'
     });
   }
 });
+
+
+app.get('/challenges/:challengeId', async (req, res) => {
+
+  const {
+
+    challengeId
+
+  } = req.params;
+
+ 
+
+  try {
+
+    const challenge = await client
+
+      .db('web2Aug')
+
+      .collection('challenges')
+
+      .findOne({
+
+        challengeId
+
+      });
+
+ 
+
+    if (!challenge) {
+
+      return res.status(404).json({
+
+        message: 'Défi introuvable'
+
+      });
+
+    }
+
+ 
+
+    res.status(200).json(challenge);
+
+  } catch (error) {
+
+    console.error('Erreur lors de la récupération du défi:', error);
+
+    res.status(500).json({
+
+      message: 'Une erreur est survenue lors de la récupération du défi'
+
+    });
+
+  }
+
+});
+
 
 app.get('/all-challenges', async (req, res) => {
   try {
@@ -245,14 +297,12 @@ app.get('/all-challenges', async (req, res) => {
 
     res.status(200).json({ challenges });
   } catch (error) {
-    console.error('Erreur lors de la récupération de tous les challenges:', error);
+    console.error('Error while retrieving all challenges:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la récupération de tous les challenges'
+      message: 'An error occurred while retrieving all the challenges'
     });
   }
 });
-
-
 
 
 app.listen(port, () => {
