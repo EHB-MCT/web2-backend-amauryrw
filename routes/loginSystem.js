@@ -30,6 +30,15 @@ client.connect((err) => {
   console.log('Connected to MongoDB database');
 });
 
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+
+  res.status(300).redirect('/index.html');
+
+});
+
+
 app.post('/register', async (req, res) => {
   const {
     username,
@@ -231,7 +240,6 @@ app.get('/my-challenges', async (req, res) => {
   }
 });
 
-
 app.get('/challenges/:challengeId', async (req, res) => {
 
   const {
@@ -259,31 +267,19 @@ app.get('/challenges/:challengeId', async (req, res) => {
  
 
     if (!challenge) {
-
       return res.status(404).json({
-
         message: 'Défi introuvable'
-
       });
-
     }
 
- 
 
     res.status(200).json(challenge);
-
   } catch (error) {
-
     console.error('Erreur lors de la récupération du défi:', error);
-
     res.status(500).json({
-
       message: 'Une erreur est survenue lors de la récupération du défi'
-
     });
-
   }
-
 });
 
 
