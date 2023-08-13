@@ -125,7 +125,7 @@ app.post('/login', async (req, res) => {
       });
     }
 
-    const userId = existingUser.userId; // Get the userId from the existingUser object
+    const userId = existingUser.userId; 
 
     res.status(200).json({
       message: 'Successful connection',
@@ -241,30 +241,19 @@ app.get('/my-challenges', async (req, res) => {
 });
 
 app.get('/challenges/:challengeId', async (req, res) => {
-
   const {
-
     challengeId
-
   } = req.params;
 
  
 
   try {
-
     const challenge = await client
-
       .db('web2Aug')
-
       .collection('challenges')
-
       .findOne({
-
         challengeId
-
       });
-
- 
 
     if (!challenge) {
       return res.status(404).json({
@@ -275,9 +264,9 @@ app.get('/challenges/:challengeId', async (req, res) => {
 
     res.status(200).json(challenge);
   } catch (error) {
-    console.error('Erreur lors de la récupération du défi:', error);
+    console.error('Error retrieving challenge:', error);
     res.status(500).json({
-      message: 'Une erreur est survenue lors de la récupération du défi'
+      message: 'An error occurred while retrieving the challenge'
     });
   }
 });
@@ -302,7 +291,7 @@ app.get('/all-challenges', async (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Serveur démarré sur le port ${port}`);
+  console.log(`Server started on port ${port}`);
 });
 
 module.exports = router;
