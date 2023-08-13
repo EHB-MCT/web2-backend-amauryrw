@@ -286,7 +286,7 @@ app.get('/challenges/:challengeId', async (req, res) => {
 app.get('/all-challenges', async (req, res) => {
   try {
     const challenges = await client
-      .db('August-web2')
+      .db('web2Aug')
       .collection('challenges')
       .find({})
       .toArray();
